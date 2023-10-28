@@ -19,6 +19,23 @@ function DonorRegistration() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission here
+
+    fetch('http://localhost:5003/donor_registration', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+      // You can add code here to handle a successful registration
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      // You can add code here to handle errors
+    });
   };
 
   return (
