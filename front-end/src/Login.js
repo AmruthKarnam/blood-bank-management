@@ -8,8 +8,12 @@ function Login({ setUserType }) {
   const handleLogin = (e) => {
     e.preventDefault();
     // Perform authentication here (For simplicity, using hardcoded values)
-    if (username === 'admin' && password === 'password') {
-      setUserType('admin');
+    if (username === 'admin' && password === 'adminPassword') {
+        setUserType('admin');
+    }
+    if (username === "manager" && password === "managerPassword")
+    {
+        setUserType('manager');
     }
   };
 

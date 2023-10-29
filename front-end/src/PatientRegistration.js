@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import backendApi from './App'
 
 function PatientRegistration() {
   const [formData, setFormData] = useState({
@@ -20,7 +21,7 @@ function PatientRegistration() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    fetch('http://localhost:5003/patient_registration', {
+    fetch(backendApi + '/patient_registration', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -47,16 +48,38 @@ function PatientRegistration() {
           <input type="text" name="name" value={formData.name} onChange={handleChange} required />
         </div>
         <div>
-          <label>Blood Group:</label>
-          <input type="text" name="blood_group" value={formData.blood_group} onChange={handleChange} required />
+        <label htmlFor="blood_group">Blood Group</label>
+        <select
+          name="blood_group"
+          value={formData.blood_group}
+          onChange={handleChange}
+          >
+            <option value="">Select Blood Group</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+        </select>
         </div>
         <div>
-          <label>Gender:</label>
-          <input type="text" name="gender" value={formData.gender} onChange={handleChange} required />
+        <label htmlFor="gender">Gender</label>
+        <select
+          name="gender"
+          value={formData.gender}
+          onChange={handleChange}
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
         </div>
         <div>
           <label>Contact:</label>
-          <input type="text" name="contact" value={formData.contact} onChange={handleChange} required />
+          <input type="tel" name="contact" value={formData.contact} onChange={handleChange} pattern="[0-9]{10}" title="Please enter a 10-digit phone number" required />
         </div>
         <div>
           <label>Date:</label>
