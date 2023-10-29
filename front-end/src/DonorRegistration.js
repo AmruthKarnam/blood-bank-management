@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import backendApi from './App'
 
 function DonorRegistration() {
   const [formData, setFormData] = useState({
@@ -20,7 +21,7 @@ function DonorRegistration() {
     e.preventDefault();
     // Handle form submission here
 
-    fetch('http://localhost:5003/donor_registration', {
+    fetch(backendApi + '/donor_registration', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,19 +54,21 @@ function DonorRegistration() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="gender">Gender:</label>
-          <input
-            type="text"
-            id="gender"
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-          />
+        <label htmlFor="gender">Gender</label>
+        <select
+          name="gender"
+          value={formData.gender}
+          onChange={handleChange}
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
         </div>
         <div className="form-group">
           <label htmlFor="age">Age:</label>
           <input
-            type="text"
+            type="number"
             id="age"
             name="age"
             value={formData.age}
@@ -73,24 +76,26 @@ function DonorRegistration() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="bloodGroup">Blood Group:</label>
-          <input
-            type="text"
-            id="bloodGroup"
-            name="bloodGroup"
-            value={formData.bloodGroup}
-            onChange={handleChange}
-          />
+        <label htmlFor="blood_group">Blood Group</label>
+        <select
+          name="blood_group"
+          value={formData.blood_group}
+          onChange={handleChange}
+          >
+            <option value="">Select Blood Group</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+        </select>
         </div>
         <div className="form-group">
           <label htmlFor="contactNumber">Contact Number:</label>
-          <input
-            type="text"
-            id="contactNumber"
-            name="contactNumber"
-            value={formData.contactNumber}
-            onChange={handleChange}
-          />
+          <input type="tel" name="contactNumber" value={formData.contact} onChange={handleChange} pattern="[0-9]{10}" title="Please enter a 10-digit phone number" required />
         </div>
         <div className="form-group">
           <label htmlFor="donationDate">Donation Date:</label>
