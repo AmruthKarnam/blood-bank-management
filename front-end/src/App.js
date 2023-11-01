@@ -1,65 +1,78 @@
 import React, { useState } from 'react';
-import Login from './Login';
-import DonorRegistration from './DonorRegistration';
-import PatientRegistration from './PatientRegistration';
-import ListBloodUnits from './ListBloodUnits'; 
-import AddBloodUnits from './AddBloodUnits'
-import UpdateBloodUnits from './UpdateBloodUnits'
-import BloodRequest from './BloodRequest';
-import './styles.css'; // Import styles
-
-const backendApi = "http://localhost:5003"
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import Login from './usr/Login';
+import ManagerDashboard from './usr/manager/ManagerDashboard';
+import AdminDashboard from './usr/admin/AdminDashboard';
+import ListBloodUnits from './usr/manager/ListBloodUnits';
+import BloodRequests from './usr/manager/BloodRequest';
+import UpdateBloodUnitStatus from './usr/manager/UpdateBloodUnits';
+import AddBloodUnits from './usr/manager/AddBloodUnits';
+import PatientRegistration from './usr/admin/PatientRegistration';
+import DonorRegistration from './usr/admin/DonorRegistration';
+import BloodUnitModifications from './usr/manager/BloodUnitModifications'
+import AddAdmins from './usr/manager/AddAdmins';
+import RemoveAdmins from './usr/manager/RemoveAdmins';
+import UpdateAdmins from './usr/manager/UpdateAdmins';
+import ListAdmins from './usr/manager/ListAdmins';
+import AdminModifications from './usr/manager/AdminModification';
+import AnalystModifications from './usr/manager/AnalystModifications'
+import AddAnalyst from './usr/manager/AddAnalyst';
+import RemoveAnalyst from './usr/manager/RemoveAnalyst';
+import ListAnalyst from './usr/manager/ListAnalyst'
+import UpdateAnalyst from './usr/manager/UpdateAnalyst';
+import AnalystDashboard from './usr/analyst/AnalystDashboard'
+import AddDonorAnalysis from './usr/analyst/AddDonorAnalysis';
+import ListDonorsToAnalyse from './usr/analyst/ListDonorsToAnalyse';
+import ListDonorAnalysis from './usr/analyst/ListDonorAnalysis'
 
 function App() {
   const [userType, setUserType] = useState(null);
-  const [selectedTab, setSelectedTab] = useState(null);
+  const [adminInfo, setAdminInfo] = useState(null);
 
-  const setTab = (tab) => {
-    setSelectedTab(tab);
+  const handleLogin = (type) => {
+    setUserType(type);
+
+    // Redirect based on user type
+    if (type === 'admin') {
+      window.location.href = '/admin';
+    } else if (type === 'manager') {
+      window.location.href = '/manager';
+    } else if (type === 'analyst') {
+      window.location.href = '/analyst'
+    }
   };
-
   return (
-    <div className="App">
-      {!userType ? (
-        <Login setUserType={setUserType} />
-      ) : (
-        <>
-          <h1>Blood Bank Management System</h1>
-          {userType === 'admin' && (
-            <>
-              <button onClick={() => setTab('donor')} className="btn-primary">
-                Donor Registration
-              </button>
-              <button onClick={() => setTab('patient')} className="btn-primary">
-                Patient Registration
-              </button>
-            </>
-          )}
-          {userType === 'admin' && selectedTab === 'donor' && <DonorRegistration />}
-          {userType === 'admin' && selectedTab === 'patient' && <PatientRegistration />}
-          {userType === 'manager' && (
-            <>
-              <button onClick={() => setTab('View Blood Units')} className="btn-primary">
-                ListBloodUnits
-              </button>
-              <button onClick={() => setTab('Add Blood Units')} className="btn-primary">
-                AddBloodUnits
-              </button>
-              <button onClick={() => setTab('Update Blood Units')} className="btn-primary">
-                UpdateBloodUnits
-              </button>
-              <button onClick={() => setTab('Blood Requests')} className="btn-primary">
-                BloodRequest
-              </button>
-            </>
-          )}
-          {userType === 'manager' && selectedTab === 'View Blood Units' && <ListBloodUnits />}
-          {userType === 'manager' && selectedTab === 'Add Blood Units' && <AddBloodUnits />}
-          {userType === 'manager' && selectedTab === 'Update Blood Units' && <UpdateBloodUnits />}
-          {userType === 'manager' && selectedTab === 'Blood Requests' && <BloodRequest />}
-        </>
-      )}
-    </div>
+    <Router>
+      <div className="App">
+      <h1>APPPPPP/</h1>
+        <Routes>
+          <Route path="/" element={<Login setUserType={handleLogin} setAdminInfo={setAdminInfo}/>} />
+          <Route path="/manager" element={<ManagerDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/analyst" element={<AnalystDashboard />} />
+          <Route path="/manager/BloodUnitModifications" element={<BloodUnitModifications />} />
+          <Route path="/manager/BloodRequests" element={<BloodRequests />} />
+          <Route path="/manager/AdminModifications" element={<AdminModifications />} />
+          <Route path="/manager/AnalystModifications" element={<AnalystModifications />} />
+          <Route path="/admin/PatientRegistration" element={<PatientRegistration />} />
+          <Route path="/admin/DonorRegistration" element={<DonorRegistration />} />
+          <Route path="/analyst/AddDonorAnalysis" element={<AddDonorAnalysis />} />
+          <Route path="/analyst/ListDonorAnalysis" element={<ListDonorAnalysis />} />
+          <Route path="/analyst/ListDonorsToAnalyse" element={<ListDonorsToAnalyse />} />
+          <Route path="/manager/BloodUnitModifications/ListBloodUnits" element={<ListBloodUnits />} />
+          <Route path="/manager/BloodUnitModifications/UpdateBloodUnitStatus" element={<UpdateBloodUnitStatus />} />
+          <Route path="/manager/BloodUnitModifications/AddBloodUnits" element={<AddBloodUnits />} />
+          <Route path="/manager/AdminModifications/ListAdmins" element={<ListAdmins />} />
+          <Route path="/manager/AdminModifications/UpdateAdmins" element={<UpdateAdmins />} />
+          <Route path="/manager/AdminModifications/RemoveAdmins" element={<RemoveAdmins />} />
+          <Route path="/manager/AdminModifications/AddAdmins" element={<AddAdmins />} />
+          <Route path="/manager/AnalystModifications/ListAnalyst" element={<ListAnalyst />} />
+          <Route path="/manager/AnalystModifications/UpdateAnalyst" element={<UpdateAnalyst />} />
+          <Route path="/manager/AnalystModifications/RemoveAnalyst" element={<RemoveAnalyst />} />
+          <Route path="/manager/AnalystModifications/AddAnalyst" element={<AddAnalyst />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
