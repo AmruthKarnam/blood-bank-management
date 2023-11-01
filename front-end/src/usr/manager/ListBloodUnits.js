@@ -1,7 +1,7 @@
 // BloodUnitList.js
 
 import React, { useState, useEffect } from 'react';
-import backendApi from './App'
+import backendApi from '../../App'
 
 function BloodUnitList() {
     const [bloodUnits, setBloodUnits] = useState([]);

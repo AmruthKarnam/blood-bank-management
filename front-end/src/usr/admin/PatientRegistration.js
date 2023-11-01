@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import backendApi from './App'
+import backendApi from '../../App'
 
-function PatientRegistration() {
+function PatientRegistration({adminInfo}) {
   const [formData, setFormData] = useState({
     name: '',
     blood_group: '',
     gender: '',
     contact: '',
-    date: ''
+    date: '',
+    adminName: adminInfo?.adminName || '',
+    adminPassword: adminInfo?.adminPassword || '',
   });
 
   const handleChange = (e) => {

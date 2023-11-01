@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import backendApi from './App'
+import backendApi from '../../App'
 
-function DonorRegistration() {
+function DonorRegistration({adminInfo}) {
   const [formData, setFormData] = useState({
     name: '',
     gender: '',
@@ -10,6 +10,8 @@ function DonorRegistration() {
     contactNumber: '',
     donationDate: '',
     lastDonated: '',
+    adminName: adminInfo?.adminName || '',
+    adminPassword: adminInfo?.adminPassword || '',
   });
 
   const handleChange = (e) => {

@@ -1,19 +1,25 @@
-// src/Login.js
 import React, { useState } from 'react';
 
 function Login({ setUserType }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [adminInfo, setAdminInfo] = useState(null);
+
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Perform authentication here (For simplicity, using hardcoded values)
-    if (username === 'admin' && password === 'adminPassword') {
+
+    if (username === "admin" && password === "adminPassword") {
         setUserType('admin');
+        setAdminInfo({ adminName: username, adminPassword: password });
     }
-    if (username === "manager" && password === "managerPassword")
-    {
-        setUserType('manager');
+    if (username === 'manager' && password === 'managerPassword') {
+      setUserType('manager');
+      setAdminInfo({ adminName: username, adminPassword: password });
+    }
+    if (username === 'analyst' && password === 'analystPassword') {
+      setUserType('analyst');
+      setAdminInfo({ adminName: username, adminPassword: password });
     }
   };
 
