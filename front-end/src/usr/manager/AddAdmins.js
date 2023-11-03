@@ -1,6 +1,6 @@
 // AddAdmins.js
 import React, { useState } from 'react';
-import backendApi from '../../App'
+import backendApi from '../api'
 
 function AddAdmins() {
   const [username, setUsername] = useState('');

@@ -1,7 +1,7 @@
 // AddBloodUnit.js
 
 import React, { useState } from 'react';
-import backendApi from '../../App'
+import backendApi from '../api'
 
 const AddBloodUnit = () => {
   const [formData, setFormData] = useState({
@@ -63,23 +63,9 @@ const AddBloodUnit = () => {
           type="number"
           id="NumberOfUnits"
           name="NumberOfUnits"
-          value={formData.DonorID}
+          value={formData.NumberOfUnits}
           onChange={handleInputChange}
         />
-      </div>
-      <div>
-      <label htmlFor="status">Status</label>
-      <select
-        name="status"
-        value={formData.status}
-        onChange={handleInputChange}
-        >
-        <option value="">Blood Unit Status</option>
-        <option value="InStock">InStock</option>
-        <option value="Utilised">Utilised</option>
-        <option value="Expired">Expired</option>
-        <option value="Reserved">Reserved</option>
-        </select>
       </div>
       <button type="submit">Submit</button>
     </form>

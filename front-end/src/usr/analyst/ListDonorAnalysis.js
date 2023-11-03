@@ -1,5 +1,5 @@
-import React, { useState} from 'react';
-import backendApi from '../../App'
+import React, { useState } from 'react';
+import backendApi from '../api';
 
 const DiseaseList = () => {
   const [donorId, setDonorId] = useState(''); // State to hold the donor ID
@@ -8,7 +8,14 @@ const DiseaseList = () => {
   // Function to fetch diseases for a specific donor
   const fetchDiseases = async () => {
     try {
-      const response = await fetch(backendApi + `/list_donor_diseases/${donorId}`); // Replace with your backend endpoint
+      const response = await fetch(backendApi + '/list_donor_diseases', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ donor_id: donorId })
+      });
+
       const data = await response.json();
       setDiseases(data.diseases); // Assuming the response format is { diseases: [] }
     } catch (error) {

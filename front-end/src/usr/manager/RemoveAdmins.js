@@ -1,6 +1,6 @@
 // RemoveAdmin.js
 import React, { useState } from 'react';
-import backendApi from '../../App'
+import backendApi from '../api';
 
 function RemoveAdmin() {
   const [username, setUsername] = useState('');

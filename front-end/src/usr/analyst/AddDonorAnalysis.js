@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import backendApi from '../../App'
+import backendApi from '../api';
 
 const AddDonorAnalysis = () => {
   const [formData, setFormData] = useState({

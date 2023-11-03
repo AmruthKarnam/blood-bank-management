@@ -1,24 +1,33 @@
-// ListDonorsToAnalyse.js
+import React, { useEffect, useState } from 'react';
+import backendApi from '../api';
 
-import React, { useState, useEffect } from 'react';
-import backendApi from '../../App'
-
-function ListDonorsToAnalyse() {
-    const [donorsToAnalyse, setDonorsToAnalyse] = useState([]);
+function ListDonorsToAnalyse({ userInfo }) {
+    const [donors, setDonors] = useState([]);
 
     useEffect(() => {
-        fetch(backendApi + '/donors_to_analyse')
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        const url = `${backendApi}/donors_to_analyse?analystName=${userInfo.userName}&analystPassword=${userInfo.userPassword}`;
+
+        fetch(url, requestOptions)
             .then(response => response.json())
-            .then(data => setDonorsToAnalyse(data.blood_units))
+            .then(data => setDonors(data.donors))  // Store the donors in state
             .catch(error => console.error('Error:', error));
-    }, []);
+    }, [userInfo]);
 
     return (
         <div>
-            <h2>Donors To be Analysed</h2>
+            <h2>Donors to Analyse</h2>
             <ul>
-                {donorsToAnalyse.map(unit => (
-                    <li key={unit.Donor_ID}>{`DONOR ID: ${unit.Donor_ID}`}</li>
+                {donors.map(donor => (
+                    <li key={donor.Donor_ID}>
+                        Donor ID: {donor.Donor_ID}, Blood Unit ID: {donor.Blood_Unit_ID}, Status: {donor.Status}
+                    </li>
                 ))}
             </ul>
         </div>

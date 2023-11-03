@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import backendApi from '../../App'
+import backendApi from '../api';
 
-function PatientRegistration({adminInfo}) {
+function PatientRegistration({userInfo}) {
+  const [message, setMessage] = useState("");
   const [formData, setFormData] = useState({
     name: '',
     blood_group: '',
     gender: '',
     contact: '',
     date: '',
-    adminName: adminInfo?.adminName || '',
-    adminPassword: adminInfo?.adminPassword || '',
+    adminName: 'admin',
+    adminPassword: 'adminPassword',
   });
 
   const handleChange = (e) => {
@@ -33,12 +34,16 @@ function PatientRegistration({adminInfo}) {
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
+      setMessage(data.message);
       // You can add code here to handle a successful registration
     })
     .catch((error) => {
       console.error('Error:', error);
       // You can add code here to handle errors
     });
+  };
+  const handlePopupClose = () => {
+    setMessage(""); // Clear the message when the popup is closed
   };
 
   return (
@@ -89,6 +94,14 @@ function PatientRegistration({adminInfo}) {
         </div>
         <button type="submit">Submit</button>
       </form>
+      {message && (
+        <div className="popup">
+          <div className="popup-content">
+            <span className="popup-close" onClick={handlePopupClose}>×</span>
+            <p>{message}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

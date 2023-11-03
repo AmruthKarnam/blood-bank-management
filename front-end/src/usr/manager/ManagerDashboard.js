@@ -1,6 +1,7 @@
 // src/ManagerDashboard.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import backendApi from '../api';
 
 function ManagerDashboard() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ function ManagerDashboard() {
     <button onClick={() => handleClick('/manager/BloodRequests')}>Blood Requests</button>
     <button onClick={() => handleClick('/manager/AdminModifications')}>Changes to Admins</button>
     <button onClick={() => handleClick('/manager/AnalystModifications')}>Changes to Analyst</button>
+    <button onClick={() => handleClick('/manager/HospitalRequests')}>Hospital Requests</button>
   </div>
 );
 }
