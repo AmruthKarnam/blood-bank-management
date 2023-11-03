@@ -1,6 +1,6 @@
 // UpdateAnalyst.js
 import React, { useState } from 'react';
-import backendApi from '../../App'
+import backendApi from '../api';
 
 function UpdateAnalyst() {
   const [username, setUsername] = useState('');
@@ -36,7 +36,7 @@ function UpdateAnalyst() {
       <h1>Update Analyst</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Username:</label>
+          <label>ID:</label>
           <input
             type="text"
             value={username}

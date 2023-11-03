@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import backendApi from '../api';
 
 const UpdateBloodUnitStatus = () => {
   const [bloodUnitID, setBloodUnitID] = useState('');
@@ -7,7 +8,7 @@ const UpdateBloodUnitStatus = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Add code to send data to the backend
-    fetch('/update_blood_unit_status', {
+    fetch(backendApi + '/update_blood_unit_status', {
         method: 'POST',
         headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -50,6 +51,8 @@ const UpdateBloodUnitStatus = () => {
         <option value="PendingAnalysis">Pending Analysis</option>
         <option value="Expired">Expired</option>
         <option value="Damaged">Damaged</option>
+        <option value="Reserved">Reserved</option>
+        <option value="Used">Used</option>
         </select>
       </label>
       </div>

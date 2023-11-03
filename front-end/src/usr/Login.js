@@ -1,25 +1,24 @@
 import React, { useState } from 'react';
-
-function Login({ setUserType }) {
+import { useNavigate } from 'react-router-dom';
+function Login({ setUserInfo }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [adminInfo, setAdminInfo] = useState(null);
-
+  const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
-
-    if (username === "admin" && password === "adminPassword") {
-        setUserType('admin');
-        setAdminInfo({ adminName: username, adminPassword: password });
-    }
-    if (username === 'manager' && password === 'managerPassword') {
-      setUserType('manager');
-      setAdminInfo({ adminName: username, adminPassword: password });
-    }
-    if (username === 'analyst' && password === 'analystPassword') {
-      setUserType('analyst');
-      setAdminInfo({ adminName: username, adminPassword: password });
+    try {
+      if (username === "admin" && password === "adminPassword") {
+        setUserInfo({ userName: username, userPassword: password, userType:"admin" });
+      }
+      if (username === 'manager' && password === 'managerPassword') {
+        setUserInfo({ userName: username, userPassword: password, userType:"manager" });
+      }
+      if (username === 'analyst' && password === 'analystPassword') {
+        setUserInfo({ userName: username, userPassword: password, userType:"analyst" });
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 

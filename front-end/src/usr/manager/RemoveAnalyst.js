@@ -1,6 +1,6 @@
 // RemoveAnalyst.js
 import React, { useState } from 'react';
-import backendApi from '../../App'
+import backendApi from '../api';
 
 function RemoveAnalyst() {
   const [username, setUsername] = useState('');
@@ -34,7 +34,7 @@ function RemoveAnalyst() {
       <h1>Remove Analyst</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Username:</label>
+          <label>ID:</label>
           <input
             type="text"
             value={username}

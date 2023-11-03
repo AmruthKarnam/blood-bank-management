@@ -1,8 +1,13 @@
 // src/AnalystDashboard.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function AnalystDashboard() {
+function AnalystDashboard({userInfo}) {
+  console.log("here userInfo =", userInfo);
+  const [localUserInfo, setLocalUserInfo] = useState(userInfo);
+  useEffect(() => {
+      setLocalUserInfo(userInfo);
+    }, [userInfo]);
     const navigate = useNavigate();
 
     const handleClick = (path) => {

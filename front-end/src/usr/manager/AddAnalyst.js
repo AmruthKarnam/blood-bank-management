@@ -1,6 +1,6 @@
 // AddAnalysts.js
 import React, { useState } from 'react';
-import backendApi from '../../App'
+import backendApi from '../api'
 
 function AddAnalysts() {
   const [username, setUsername] = useState('');

@@ -86,21 +86,26 @@ queries = [
     );
     """,
     """
-    CREATE TABLE Manager (
+   CREATE TABLE Manager (
         Manager_ID INTEGER PRIMARY KEY,
-        Manager_Name TEXT
+        Manager_Name TEXT,
+        Manager_Password TEXT
     );
+
     """,
     """
     CREATE TABLE Registration_team (
         Admin_ID INTEGER PRIMARY KEY,
-        Admin_Name TEXT
+        Admin_Name TEXT,
+        Admin_Password TEXT
     );
+
     """,
     """
-    CREATE TABLE Analyst (
+   CREATE TABLE Analyst (
         Analyst_ID INTEGER PRIMARY KEY,
-        Analyst_Name TEXT
+        Analyst_Name TEXT,
+        Analyst_Password TEXT
     );
     """
 ]

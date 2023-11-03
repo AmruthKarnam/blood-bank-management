@@ -1,6 +1,6 @@
 // ListAnalyst.js
 import React, { useState, useEffect } from 'react';
-import backendApi from '../../App'
+import backendApi from '../api';
 
 function ListAnalyst() {
   const [analyst, setAnalyst] = useState([]);
@@ -28,8 +28,8 @@ function ListAnalyst() {
     <div>
       <h1>List Analyst</h1>
       <ul>
-        {analyst.map((admin) => (
-          <li key={admin.id}>{admin.username}</li>
+        {analyst.map((analyst) => (
+          <li key={analyst.Analyst_ID}>{analyst.Analyst_NAME}</li>
         ))}
       </ul>
     </div>
