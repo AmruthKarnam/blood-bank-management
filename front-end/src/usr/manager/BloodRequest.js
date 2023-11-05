@@ -29,6 +29,7 @@ function BloodRequest() {
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
+      alert(data.message);
       // You can add code here to handle a successful request
     })
     .catch(error => {

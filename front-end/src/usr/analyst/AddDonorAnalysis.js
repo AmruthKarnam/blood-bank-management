@@ -44,6 +44,7 @@ const AddDonorAnalysis = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log('Success:', data);
+        alert(data.message)
         // Handle success response from the backend
       })
       .catch((error) => {
@@ -75,7 +76,6 @@ const AddDonorAnalysis = () => {
             multiple
             value={formData.diseases}
             onChange={handleMultiSelectChange}
-            required
           >
             <option value="Hepatitis B">Hepatitis B</option>
             <option value="Hepatitis C">Hepatitis C</option>

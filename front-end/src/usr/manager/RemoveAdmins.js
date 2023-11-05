@@ -34,7 +34,7 @@ function RemoveAdmin() {
       <h1>Remove Admin</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Username:</label>
+          <label>ID:</label>
           <input
             type="text"
             value={username}

@@ -29,6 +29,7 @@ const AddBloodUnit = () => {
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
+      alert(data.message);
     })
     .catch(error => {
       console.error('Error:', error);

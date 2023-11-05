@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import random
 from datetime import datetime, timedelta
 
-bank_id = 400344
+bank_id = 1
 path_to_project = "/Users/amruth/BITS/Semister1/code/DBMS/blood-bank-management/"
 path_to_database = path_to_project + "database/blood_bank_management.db"
 
@@ -65,22 +65,23 @@ def donor_registration():
         if state == 1:
             conn = sqlite3.connect(path_to_database)
             cursor = conn.cursor()
-            query = f"SELECT ADMIN_ID FROM REGISTERATION_TEAM WHERE ADMIN_NAME = '{admin_name}' AND ADMIN_PASSWORD = '{admin_password}'"
+            query = f"SELECT ADMIN_ID FROM REGISTRATION_TEAM WHERE ADMIN_NAME = '{admin_name}' AND ADMIN_PASSWORD = '{admin_password}'"
             cursor.execute(query)
-            admin = cursor.fetchall()
+            admin = cursor.fetchone()
             conn.close()
 
-            insert_query = f"INSERT INTO DONOR (BANK_ID, ADMIN_ID, NAME, GENDER, AGE, BLOOD_GROUP,CONTACT, DONATION_DATE, LAST_DONATED) VALUES ({bank_id}, {admin}, '{name}', '{gender}', {age}, '{blood_group}', '{contact}', '{date}', '{last_donated}')"
+            insert_query = f"INSERT INTO DONOR (BANK_ID, ADMIN_ID, Name, Gender, Age, Blood_Group, Contact, Donation_Date, Last_Donated) VALUES ({bank_id}, {admin[0]}, '{name}', '{gender}', {age}, '{blood_group}', '{contact_number}', '{date}', '{last_donated}')"
+            print(insert_query)
             execute_query(insert_query)
 
-            print(f"Name: {name}, Blood Group: {blood_group}, Gender: {gender}, Contact: {contact}, Date: {date}")
+            print(f"Name: {name}, Blood Group: {blood_group}, Gender: {gender}, Contact: {contact_number}, Date: {date}")
 
             # You can now interact with the database and store the patient registration data
 
             return jsonify({"message" : "Donor Registered Successfully!"})
         
         elif state == 0:
-            return jsonify({"message" : "Cant Donate before 6 months of last donation"})
+            return jsonify({"message" : "Can't Donate before 6 months of last donation"})
         
         else:
             return jsonify({"message" : "Last donated date is greater than current date"})
@@ -94,7 +95,7 @@ def patient_registration():
         # Get form data
         data = request.json
         name = data['name']
-        blood_group = data['bloodGroup']
+        blood_group = data['blood_group']
         gender = data['gender']
         contact = data['contact']
         date = data['date']
@@ -104,12 +105,12 @@ def patient_registration():
 
         conn = sqlite3.connect(path_to_database)
         cursor = conn.cursor()
-        query = f"SELECT ADMIN_ID FROM REGISTERATION_TEAM WHERE ADMIN_NAME = '{admin_name}' AND ADMIN_PASSWORD = '{admin_password}'"
+        query = f"SELECT Admin_ID FROM REGISTRATION_TEAM WHERE Admin_Name = '{admin_name}' AND Admin_Password = '{admin_password}'"
         cursor.execute(query)
-        admin = cursor.fetchall()
+        admin = cursor.fetchone()
         conn.close()
 
-        insert_query = f"INSERT INTO PATIENT (ADMIN_ID, NAME, BLOOD_GROUP, GENDER, CONTACT, DATE) VALUES ({admin}, '{name}', '{blood_group}', '{gender}', '{contact}', '{date}')"
+        insert_query = f"INSERT INTO PATIENT (ADMIN_ID, NAME, BLOOD_GROUP, GENDER, CONTACT, DATE) VALUES ({admin[0]}, '{name}', '{blood_group}', '{gender}', '{contact}', '{date}')"
         execute_query(insert_query)
 
         print(f"Name: {name}, Blood Group: {blood_group}, Gender: {gender}, Contact: {contact}, Date: {date}")
@@ -128,14 +129,15 @@ def get_available_blood_units():
     cursor = conn.cursor()
 
     # Execute a query to get available blood units
-    cursor.execute("SELECT * FROM Blood_Unit WHERE Status = 'In Stock'")
+    cursor.execute("SELECT * FROM Blood_Unit WHERE Status = 'InStock'")
     blood_units = cursor.fetchall()
 
     # Close the connection
     conn.close()
 
     # Convert results to a list of dictionaries for JSON response
-    blood_units_list = [{'Blood_Unit_ID': unit[0], 'Donor_ID': unit[1], 'Analyst_ID': unit[2], 'Status': unit[3]} for unit in blood_units]
+    blood_units_list = [{'Blood_Unit_ID': unit[0], 'Status': unit[3]} for unit in blood_units]
+    print(blood_units_list)
 
     return jsonify({'blood_units': blood_units_list})
 
@@ -182,27 +184,20 @@ def is_compatible():
         return True
     return False
 
-def provide_the_blood_units(patient_id, compatible_units, status):
-    print(f"These Units are compatible with the patient {compatible_units} and will be provided")
-    blood_units = []
+# Check for expired units and update their status
+'''for unit in compatible_units:
+    donation_date = datetime.strptime(unit['Donation_Date'], '%Y-%m-%d').date()
+    expiration_date = donation_date + timedelta(days=40)
+    if CurrentDate <= expiration_date:
+        non_expired_units.append(unit)
+    else:
+        update_blood_unit_status(unit['Blood_Unit_ID'], 'Expired')'''
 
-    conn = sqlite3.connect(path_to_database)
-    cursor = conn.cursor()
-    for units in compatible_units:
-        blood_units.append(compatible_units[0])
-        add_query = f"INSERT INTO Cross_Matching (Donor_ID, Patient_ID) VALUES ({compatible_units[1]}, {patient_id})"
-        cursor.execute(add_query)
-
-    update_query = f"UPDATE Blood_Unit SET Status = '{status}' WHERE Blood_Unit_ID IN ({','.join(['?']*len(blood_units))})"
-    print("QUERY Patient is =", update_query)
-    cursor.execute(update_query)
-    conn.commit()
-    conn.close()
 
 def make_blood_req(id, blood_grp, quantity, status, req_by):
-    # Query to get compatible blood units sorted by donation date
-    non_expired_units = []
+    matching_date = CurrentDate
     non_expired_compatible_units = []
+    add_query = []
     query = f"""
         SELECT bu.Blood_Unit_ID, bu.Donor_ID, bu.Analyst_ID, bu.Status, d.Donation_Date
         FROM Blood_Unit bu
@@ -217,50 +212,62 @@ def make_blood_req(id, blood_grp, quantity, status, req_by):
     conn.commit()
     conn.close()
 
-    # Check for expired units and update their status
-    '''for unit in compatible_units:
-        donation_date = datetime.strptime(unit['Donation_Date'], '%Y-%m-%d').date()
-        expiration_date = donation_date + timedelta(days=40)
-        if CurrentDate <= expiration_date:
-            non_expired_units.append(unit)
-        else:
-            update_blood_unit_status(unit['Blood_Unit_ID'], 'Expired')'''
-    
     non_expired_units = compatible_units
     print("THE NON Expired UNITS are =",non_expired_units)
 
-    if len(non_expired_units) < quantity:
-        return "Not enough blood, Cant supply as of now"
+    if len(compatible_units) < quantity:
+        return "Not enough blood, Can't supply as of now"
     
-    if req_by == "HOSPITAL" :
-        update_query = f"UPDATE Blood_Unit SET Status = '{status}' WHERE Blood_Unit_ID IN ({','.join(['?']*len(non_expired_units))})"
+    if req_by == "HOSPITAL":
+        # Use parameterized query and execute many
+        update_query = f"UPDATE Blood_Unit SET Status = '{status}' WHERE Blood_Unit_ID = ({','.join(['?']*len(non_expired_units))})"
         print("QUERY HOSPITAL is =", update_query)
         execute_query(update_query)
-        return f"Succesfully Reserved {len(non_expired_units)} units For Hospital {id}"
+        return f"Successfully Reserved {len(compatible_units)} units For Hospital {id}"
+    
     else:
         units = 0
-        while(units < len(non_expired_units)):
+        while(units < len(compatible_units)):
             if quantity == 0:
-                print("ALL the blood units are taken to be Given to the patient")
-                provide_the_blood_units(id, non_expired_compatible_units, status) # add all entries in cross matching and update all these Blood units as USED
-                return f"Succesfully suppled {len(non_expired_compatible_units)} of blood"
+                # Use parameterized query and execute
+                conn = sqlite3.connect(path_to_database)
+                cursor = conn.cursor()
+                update_query = f"""
+                    UPDATE Blood_Unit
+                    SET Status = '{status}'
+                    WHERE Blood_Unit_ID IN ({','.join(str(blood_unit[0]) for blood_unit in non_expired_compatible_units)});
+                """
+                cursor.execute(update_query)
+                for query in add_query:
+                    cursor.execute(add_query)
+                conn.commit()
+                conn.close()
+                return f"Successfully supplied {len(non_expired_compatible_units)} units of blood"
 
-            units = units + 1
             if is_compatible() == False:
-                continue
+                matching_result = "Negative"
             else:
+                matching_result = "Positive"
                 non_expired_compatible_units.append(non_expired_units[units])
-                quantity = quantity - 1
+                quantity -= 1
 
+            add_query.append(f"INSERT INTO Cross_Matching (BloodUnit_ID, Patient_ID, Matching_Result, Matching_Date) VALUES ({non_expired_units[0][0]}, {id}, '{matching_result}', '{matching_date}')")
+            units += 1
+
+        conn = sqlite3.connect(path_to_database)
+        cursor = conn.cursor()
+        for query in add_query:
+            cursor.execute(add_query)
+        conn.commit()
+        conn.close()
         return "Not enough Blood Units Compatible with the Patient"
-
 
 @app.route('/make_blood_request', methods=['POST'])
 def make_blood_request():
     data = request.json  # Assuming data is sent as JSON
     patient_id = data['patientID']
     blood_grp = data['bloodGroup']
-    quantity = data['quantity']
+    quantity = int(data['quantity'])
     print(f"Make blood req {patient_id} {blood_grp} {quantity}")
 
     # Get the list of compatible blood units and make the request
@@ -271,38 +278,38 @@ def make_blood_request():
 @app.route('/add_admin', methods=['POST'])
 def add_admin():
     data = request.json
-    admin_name = data['Username']
-    admin_password = data['Password']
+    admin_name = data['username']
+    admin_password = data['password']
     print(f"Inside add_admin {admin_name} {admin_password}")
 
     # Execute a query to insert the admin
-    query = f"INSERT INTO REGISTERATION_TEAM (username, password) VALUES ('{admin_name}', '{admin_password}')"
+    query = f"INSERT INTO REGISTRATION_TEAM (Admin_Name, Admin_Password) VALUES ('{admin_name}', '{admin_password}')"
     execute_query(query)
 
     return jsonify({'message': f'Successfully Added {admin_name}'})
 
-@app.route('/remove_admin', methods=['POST'])
+@app.route('/remove_admin', methods=['DELETE'])
 def remove_admin():
     data = request.json
-    admin_id = data['id']
+    admin_id = data['username']
     print(f"Inside remove_admin {admin_id}")
 
-    query = f"DELETE FROM Registeration_Team WHERE Admin_ID = {admin_id}"
+    query = f"DELETE FROM REGISTRATION_TEAM WHERE Admin_ID = {admin_id}"
     execute_query(query)
     return jsonify({'message': f'Successfully Removed {admin_id}'})
 
-@app.route('/update_admin', methods=['POST'])
+@app.route('/update_admin', methods=['PUT'])
 def update_admin():
     data = request.json
-    admin_id = data['id']
-    new_admin_password = data['Password']
+    admin_id = data['username']
+    new_admin_password = data['newPassword']
     print(f"Inside update_admin {admin_id} {new_admin_password}")
 
-    query = f"UPDATE Registeration_Team SET Admin_Password = '{new_admin_password}' WHERE Admin_ID = {admin_id}"
+    query = f"UPDATE REGISTRATION_TEAM SET Admin_Password = '{new_admin_password}' WHERE Admin_ID = {admin_id}"
     execute_query(query)
-    return jsonify({"message': f'Successfully Updated {admin_id}'s Password"})
+    return jsonify({"message": f"Successfully Updated {admin_id}'s Password"})
 
-@app.route('/list_admin', methods=['POST'])
+@app.route('/list_admins', methods=['GET'])
 def list_admin():
     admin_list = []
     conn = sqlite3.connect(path_to_database)
@@ -310,15 +317,16 @@ def list_admin():
     print(f"Inside list_admin")
 
     # Execute a query to insert the admin
-    cursor.execute(f"SELECT * FROM REGISTERATION_TEAM")
+    cursor.execute(f"SELECT * FROM REGISTRATION_TEAM")
     admins = cursor.fetchall()
     for i in admins:
-        admin_list.append({f"ADMIN_ID = {i[0]}, ADMIN_NAME = {i[1]}, ADMIN_PASSWORD = {i[2]}"})
+        admin_list.append({f"ADMIN_ID" : i[0], "ADMIN_NAME" : i[1], "ADMIN_PASSWORD" : i[2]})
 
     # Commit the changes and close the connection
     conn.commit()
     conn.close()
-    return jsonify({"'admins': admins_list"})
+    print(admin_list)
+    return jsonify({"admins": admin_list})
 
 @app.route('/add_analyst', methods=['POST'])
 def add_analyst():
@@ -345,17 +353,17 @@ def remove_analyst():
     execute_query(query)
     return jsonify({'message': f'Successfully Removed {analyst_id}'})
 
-@app.route('/update_analyst', methods=['POST'])
+@app.route('/update_analyst', methods=['PUT'])
 def update_analyst():
     print(f"inside update_analyst")
     data = request.json
-    analyst_id = data['id']
-    new_analyst_password = data['Password']
+    analyst_id = data['username']
+    new_analyst_password = data['newPassword']
     print(f"Inside update_analyst {analyst_id} {new_analyst_password}")
 
     query = f"UPDATE ANALYST SET Analyst_Password = '{new_analyst_password}' WHERE Analyst_ID = {analyst_id}"
     execute_query(query)
-    return jsonify({"message': f'Successfully Updated {analyst_id}'s Password"})
+    return jsonify({"message": f"Successfully Updated {analyst_id}'s Password"})
 
 @app.route('/list_analyst', methods=['GET'])
 def list_analyst():
@@ -368,7 +376,7 @@ def list_analyst():
     cursor.execute(f"SELECT * FROM ANALYST")
     analysts = cursor.fetchall()
     for i in analysts:
-        analyst_list.append({f"Analyst_ID = {i[0]}, Analyst_NAME = {i[1]}, Analyst_PASSWORD = {i[2]}"})
+        analyst_list.append({f"Analyst_ID" : i[0], "Analyst_NAME" : i[1], "Analyst_PASSWORD" : i[2]})
 
     # Commit the changes and close the connection
     conn.commit()
@@ -388,21 +396,24 @@ def donors_to_analyse():
     cursor = conn.cursor()
 
     # Execute a query to get the analyst with the provided credentials
-    cursor.execute(f"SELECT * FROM ANALYST WHERE Analyst_NAME = '{analyst_name}' AND Analyst_PASSWORD = '{analyst_password}'")
+    cursor.execute(f"SELECT * FROM Analyst WHERE Analyst_Name = '{analyst_name}' AND Analyst_Password = '{analyst_password}'")
     analyst_id = cursor.fetchone()
 
     if analyst_id is None:
         return jsonify({'message': 'Analyst not found'})
 
-    cursor.execute(f"SELECT bu.Blood_Unit_ID, bu.Donor_ID, bu.Analyst_ID, bu.Status FROM Blood_Unit bu WHERE bu.Analyst_ID = {analyst_id[0]}")
-    donors = cursor.fetchall()
+    cursor.execute(f"SELECT bu.Donor_ID FROM Blood_Unit bu WHERE bu.Analyst_ID = {analyst_id[0]} AND bu.Status ='PendingAnalysis' ")
+    donors_to_analyse = cursor.fetchall()
+    print(f"\n{donors_to_analyse}\n")
+    donors = set(donors_to_analyse)
+    print(f"\n{donors}\n")
 
     # Close the connection
     conn.close()
     print(f" Name is {analyst_name} and Password is {analyst_password}\n")
     print(f"analyst= {analyst_id}")
 
-    donors_list = [{'Blood_Unit_ID': donor[0], 'Donor_ID': donor[1], 'Analyst_ID': donor[2], 'Status': donor[3]} for donor in donors]
+    donors_list = [{'Donor_ID': donor[0]} for donor in donors]
     print(donors_list)
 
     return jsonify({'donors': donors_list})
@@ -450,7 +461,10 @@ def add_donor_analysis():
             cursor.execute(f"INSERT INTO Diseases (Donor_ID, Diseases) VALUES ({donor_id}, '{disease}')")
 
         # Update status of blood units associated with this donor
-        cursor.execute(f"UPDATE Blood_Unit SET Status = 'DAMAGED' WHERE Donor_ID = {donor_id}")
+        if len(diseases) > 0:
+            cursor.execute(f"UPDATE Blood_Unit SET Status = 'Damaged' WHERE Donor_ID = {donor_id}")
+        else:
+            cursor.execute(f"UPDATE Blood_Unit SET Status = 'InStock' WHERE Donor_ID = {donor_id}")
 
         # Commit the transaction
         conn.execute('COMMIT')
@@ -477,6 +491,5 @@ def hospital_request():
     return jsonify({'message': f'{num_units_requested}'})
 
 
-
 if __name__ == '__main__':
-    app.run(debug=True, port = 5011)
+    app.run(debug=True, port = 5000)
