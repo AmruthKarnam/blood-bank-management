@@ -29,7 +29,7 @@ function ListAdmins() {
       <h1>List Admins</h1>
       <ul>
         {admins.map((admin) => (
-          <li key={admin.id}>{admin.username}</li>
+          <li key={admin.ADMIN_ID}>{admin.ADMIN_NAME}</li>
         ))}
       </ul>
     </div>

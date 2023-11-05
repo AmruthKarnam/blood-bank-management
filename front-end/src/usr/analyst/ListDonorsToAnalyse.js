@@ -26,7 +26,7 @@ function ListDonorsToAnalyse({ userInfo }) {
             <ul>
                 {donors.map(donor => (
                     <li key={donor.Donor_ID}>
-                        Donor ID: {donor.Donor_ID}, Blood Unit ID: {donor.Blood_Unit_ID}, Status: {donor.Status}
+                        Donor ID: {donor.Donor_ID}
                     </li>
                 ))}
             </ul>
