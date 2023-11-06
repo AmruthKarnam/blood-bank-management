@@ -168,12 +168,13 @@ def add_blood_unit():
 def update_blood_unit_status():
     print(f"inside update")
     data = request.json
-    blood_unit_id = request.form.get('blood_unit_id')
-    new_status = request.form.get('new_status')
+    blood_unit_id = data['blood_unit_id']
+    new_status = data['new_status']
     print(f"inside update {blood_unit_id} {new_status}")
 
     # Add code to update the status in the database
     update_query = f"UPDATE Blood_Unit SET Status = '{new_status}' WHERE Blood_Unit_ID = {blood_unit_id}"
+    print(update_query)
     execute_query(update_query)
 
     return jsonify({'message': 'Blood unit status updated successfully'})
@@ -198,6 +199,7 @@ def make_blood_req(id, blood_grp, quantity, status, req_by):
     matching_date = CurrentDate
     non_expired_compatible_units = []
     add_query = []
+    final_status = ""
     query = f"""
         SELECT bu.Blood_Unit_ID, bu.Donor_ID, bu.Analyst_ID, bu.Status, d.Donation_Date
         FROM Blood_Unit bu
@@ -213,36 +215,26 @@ def make_blood_req(id, blood_grp, quantity, status, req_by):
     conn.close()
 
     non_expired_units = compatible_units
-    print("THE NON Expired UNITS are =",non_expired_units)
+    print("THE NON Expired UNITS are =", non_expired_units)
 
-    if len(compatible_units) < quantity:
+    if len(non_expired_units) < quantity:
         return "Not enough blood, Can't supply as of now"
     
+    print(non_expired_units)
     if req_by == "HOSPITAL":
         # Use parameterized query and execute many
-        update_query = f"UPDATE Blood_Unit SET Status = '{status}' WHERE Blood_Unit_ID = ({','.join(['?']*len(non_expired_units))})"
+        update_query = f"UPDATE Blood_Unit SET Status = '{status}' WHERE Blood_Unit_ID IN ({','.join(str(unit[0]) for unit in non_expired_units)})"
         print("QUERY HOSPITAL is =", update_query)
         execute_query(update_query)
-        return f"Successfully Reserved {len(compatible_units)} units For Hospital {id}"
+        return f"Successfully Reserved {len(non_expired_units)} units For Hospital {id}"
     
     else:
         units = 0
-        while(units < len(compatible_units)):
+        while(units < len(non_expired_units)):
             if quantity == 0:
                 # Use parameterized query and execute
-                conn = sqlite3.connect(path_to_database)
-                cursor = conn.cursor()
-                update_query = f"""
-                    UPDATE Blood_Unit
-                    SET Status = '{status}'
-                    WHERE Blood_Unit_ID IN ({','.join(str(blood_unit[0]) for blood_unit in non_expired_compatible_units)});
-                """
-                cursor.execute(update_query)
-                for query in add_query:
-                    cursor.execute(add_query)
-                conn.commit()
-                conn.close()
-                return f"Successfully supplied {len(non_expired_compatible_units)} units of blood"
+                final_status = f"Successfully supplied {len(non_expired_compatible_units)} units of blood"
+                break
 
             if is_compatible() == False:
                 matching_result = "Negative"
@@ -251,16 +243,31 @@ def make_blood_req(id, blood_grp, quantity, status, req_by):
                 non_expired_compatible_units.append(non_expired_units[units])
                 quantity -= 1
 
-            add_query.append(f"INSERT INTO Cross_Matching (BloodUnit_ID, Patient_ID, Matching_Result, Matching_Date) VALUES ({non_expired_units[0][0]}, {id}, '{matching_result}', '{matching_date}')")
+            add_query.append(f"INSERT INTO Cross_Matching (BloodUnit_ID, Patient_ID, Matching_Result, Matching_Date) VALUES ({non_expired_units[units][0]}, {id}, '{matching_result}', '{matching_date}')")
             units += 1
 
         conn = sqlite3.connect(path_to_database)
         cursor = conn.cursor()
         for query in add_query:
-            cursor.execute(add_query)
-        conn.commit()
-        conn.close()
-        return "Not enough Blood Units Compatible with the Patient"
+            print(query)
+            cursor.execute(query)
+
+        if final_status != "" or quantity == 0:
+            update_query = f"""
+                UPDATE Blood_Unit
+                SET Status = '{status}'
+                WHERE Blood_Unit_ID IN ({','.join(str(blood_unit[0]) for blood_unit in non_expired_compatible_units)});
+            """
+            print(update_query)
+            cursor.execute(update_query)
+            conn.commit()
+            conn.close()
+            return final_status
+        
+        else:
+            conn.commit()
+            conn.close()
+            return "Not enough Blood Units Compatible with the Patient"
 
 @app.route('/make_blood_request', methods=['POST'])
 def make_blood_request():
@@ -271,7 +278,7 @@ def make_blood_request():
     print(f"Make blood req {patient_id} {blood_grp} {quantity}")
 
     # Get the list of compatible blood units and make the request
-    num_units_requested = make_blood_req(patient_id, blood_grp, quantity, "USED", "PATIENT")
+    num_units_requested = make_blood_req(patient_id, blood_grp, quantity, "Used", "PATIENT")
 
     return jsonify({'message': f'{num_units_requested}'})
 
@@ -479,14 +486,20 @@ def add_donor_analysis():
     
 @app.route('/hospital_request', methods=['POST'])
 def hospital_request():
-    hospital_id = request.form.get('hospital_id')
-    blood_group = request.form.get('blood_group')
-    quantity = request.form.get('quantity')
+    data = request.get_json()  # Get the JSON data from the request
+    hospital_id = data.get('hospital_id')
+    blood_group = data.get('blood_group')
+    quantity = int(data.get('quantity'))
 
     print(f"Make blood req {hospital_id} {blood_group} {quantity}")
 
+    '''update_query = f"UPDATE Blood_Unit SET Status = 'InStock' WHERE Blood_Unit_ID IN (4,5)"
+    print(update_query)
+    execute_query(update_query)
+    return jsonify({'message': ""})'''
+
     # Get the list of compatible blood units and make the request
-    num_units_requested = make_blood_req(hospital_id, blood_group, quantity, "RESERVED", "HOSPITAL")
+    num_units_requested = make_blood_req(hospital_id, blood_group, quantity, "Used", "HOSPITAL")
 
     return jsonify({'message': f'{num_units_requested}'})
 

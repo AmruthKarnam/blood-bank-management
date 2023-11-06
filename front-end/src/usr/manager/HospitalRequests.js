@@ -10,17 +10,24 @@ const HospitalRequest = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add code to send data to the backend
+  
+    const requestData = {
+      hospital_id: hospitalID,
+      blood_group: bloodGroup,
+      quantity: quantity,
+    };
+  
     fetch(backendApi + '/hospital_request', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json', // Set the content type to JSON
       },
-      body: `hospital_id=${hospitalID}&blood_group=${bloodGroup}&quantity=${quantity}`,
+      body: JSON.stringify(requestData), // Stringify the data to JSON
     })
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
+      alert(data.message);
       // You can add code here to handle a successful response
     })
     .catch(error => {
