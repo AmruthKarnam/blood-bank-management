@@ -34,7 +34,7 @@ queries = [
         Blood_Unit_ID INTEGER PRIMARY KEY,
         Donor_ID INTEGER NOT NULL,
         Analyst_ID INTEGER NOT NULL,
-        Status TEXT CHECK(Status IN ('InStock', 'PendingAnalysis', 'Expired', 'Damaged', 'Used')),
+        Status TEXT CHECK(Status IN ('InStock', 'PendingAnalysis', 'Expired', 'Damaged', 'Used', 'Reserved')),
         FOREIGN KEY (Donor_ID) REFERENCES Donor(Donor_ID),
         FOREIGN KEY (Analyst_ID) REFERENCES Analyst(Analyst_ID)
     );

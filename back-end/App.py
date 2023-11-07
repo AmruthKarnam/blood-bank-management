@@ -194,17 +194,29 @@ def is_compatible():
     else:
         update_blood_unit_status(unit['Blood_Unit_ID'], 'Expired')'''
 
+def get_donatable_blood_types(recepient_blood_grp):
+    donatable_grps = {"A+" : ["A+", "A-", "O+", "O-"] , "A-" : ["A-", "O-"],
+                      "B+" : ["B+", "B-", "O+", "O-"], "B-" : ["B-", "O-"],
+                      "AB+" : ["A+", "A-", "B+", "B-" , "O+", "O-", "AB+", "AB-"],
+                      "AB-" : ["A-", "B-" , "AB-", "O-"],
+                      "O+" : ["O+", "O-"],
+                      "O-" : ["O-"]
+                      }
+    return donatable_grps[recepient_blood_grp]
+    
 
 def make_blood_req(id, blood_grp, quantity, status, req_by):
     matching_date = CurrentDate
     non_expired_compatible_units = []
     add_query = []
     final_status = ""
+    list_donatable_grp = get_donatable_blood_types(blood_grp)
+    blood_grp_str = "', '".join(list_donatable_grp)
     query = f"""
         SELECT bu.Blood_Unit_ID, bu.Donor_ID, bu.Analyst_ID, bu.Status, d.Donation_Date
         FROM Blood_Unit bu
         JOIN Donor d ON bu.Donor_ID = d.Donor_ID
-        WHERE d.Blood_Group = '{blood_grp}' AND bu.Status = 'InStock'
+        WHERE d.Blood_Group IN ('{blood_grp_str}') AND bu.Status = 'InStock'
         ORDER BY d.Donation_Date;
     """
     conn = sqlite3.connect(path_to_database)
@@ -222,11 +234,12 @@ def make_blood_req(id, blood_grp, quantity, status, req_by):
     
     print(non_expired_units)
     if req_by == "HOSPITAL":
+        hospital_units = non_expired_units[:quantity]
         # Use parameterized query and execute many
-        update_query = f"UPDATE Blood_Unit SET Status = '{status}' WHERE Blood_Unit_ID IN ({','.join(str(unit[0]) for unit in non_expired_units)})"
+        update_query = f"UPDATE Blood_Unit SET Status = '{status}' WHERE Blood_Unit_ID IN ({','.join(str(unit[0]) for unit in hospital_units)})"
         print("QUERY HOSPITAL is =", update_query)
         execute_query(update_query)
-        return f"Successfully Reserved {len(non_expired_units)} units For Hospital {id}"
+        return f"Successfully Reserved {len(hospital_units)} units For Hospital {id}"
     
     else:
         units = 0
@@ -499,10 +512,10 @@ def hospital_request():
     return jsonify({'message': ""})'''
 
     # Get the list of compatible blood units and make the request
-    num_units_requested = make_blood_req(hospital_id, blood_group, quantity, "Used", "HOSPITAL")
+    num_units_requested = make_blood_req(hospital_id, blood_group, quantity, "Reserved", "HOSPITAL")
 
     return jsonify({'message': f'{num_units_requested}'})
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port = 5000)
+    app.run(debug=True, port = 5005)

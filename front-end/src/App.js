@@ -33,6 +33,8 @@ function App() {
 
   const handleLogin = (info) => {
     setUserInfo(info);
+    console.log("HEREEEEEE");
+    console.log(info);
     if (info.userType === 'analyst') {
       navigate('/analyst', { state: { userInfo: info } });
     } else if (info.userType === 'manager') {
