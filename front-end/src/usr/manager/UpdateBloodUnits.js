@@ -7,9 +7,14 @@ const UpdateBloodUnitStatus = () => {
   const [bloodUnitID, setBloodUnitID] = useState('');
   const [newStatus, setNewStatus] = useState('');
 
+  const handleChange = (e) => {
+    console.log('Selected value:', e.target.value);
+    setNewStatus(e.target.value);
+  };
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(newStatus);
+    console.log("status=", newStatus);
     const requestData = {
       blood_unit_id: bloodUnitID,
       new_status: newStatus,
@@ -50,7 +55,7 @@ const UpdateBloodUnitStatus = () => {
           New Status:
           <select
             value={newStatus}
-            onChange={(e) => setNewStatus(e.target.value)}
+            onChange={handleChange}
             required
           >
             <option value="InStock">In Stock</option>
