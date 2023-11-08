@@ -33,8 +33,6 @@ function App() {
 
   const handleLogin = (info) => {
     setUserInfo(info);
-    console.log("HEREEEEEE");
-    console.log(info);
     if (info.userType === 'analyst') {
       navigate('/analyst', { state: { userInfo: info } });
     } else if (info.userType === 'manager') {
@@ -45,7 +43,7 @@ function App() {
   };
   return (
       <div className="App">
-      <h1>APPPPPP/</h1>
+      <h1>Blood Bank Management</h1>
         <Routes>
           <Route path="/" element={<Login setUserInfo = {handleLogin} />} />
           <Route path="/manager" element={<ManagerDashboard />} />
